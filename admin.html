@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Kharddy Wedding RSVP</title>
+    <script defer src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+        }
+
+        :root {
+            --primary: #8b5cf6;
+            --primary-dark: #6d28d9;
+            --accent: #f59e0b;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-light: #f9fafb;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            scroll-behavior: smooth;
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dashboard-container {
+            display: none;
+        }
+
+        table {
+            font-size: 14px;
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            font-weight: 600;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tr:hover {
+            background-color: #f3f4f6;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-yes {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-no {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-maybe {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .filter-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin-right: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border: 2px solid #e5e7eb;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .filter-badge.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Section -->
+    <div id="loginSection" class="login-container">
+        <div class="w-full max-w-md p-8 bg-white rounded-xl shadow-lg">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-transparent bg-clip-text" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">
+                    Admin Dashboard
+                </h1>
+                <p class="text-gray-600 mt-2">Kharddy Wedding RSVP Management</p>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Admin PIN</label>
+                    <input 
+                        type="password" 
+                        id="adminPin" 
+                        required 
+                        placeholder="Enter admin PIN"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
+                    >
+                </div>
+                <button type="submit" class="btn btn-primary w-full">
+                    Access Dashboard
+                </button>
+            </form>
+
+            <p class="text-center text-gray-600 text-sm mt-4">
+                PIN: <span class="font-mono text-gray-800">1234</span>
+            </p>
+
+            <button type="button" onclick="goBack()" class="w-full mt-6 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition-colors duration-200">
+                ← Back to Website
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="dashboard-container">
+        <!-- Header -->
+        <nav class="bg-white shadow-sm border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-transparent bg-clip-text" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">
+                    RSVP Management Dashboard
+                </h1>
+                <div class="flex gap-3">
+                    <button type="button" onclick="goBack()" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors duration-200">
+                        ← Back
+                    </button>
+                    <button type="button" onclick="logout()" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors duration-200">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalRSVP">0</div>
+                    <div class="stat-label">Total RSVPs</div>
+                </div>
+                <div class="stat-card" style="border-left-color: #10b981;">
+                    <div class="stat-number" style="color: #10b981;" id="attendingCount">0</div>
+                    <div class="stat-label">Attending (Yes)</div>
+                </div>
+                <div class="stat-card" style="border-left-color: #ef4444;">
+                    <div class="stat-number" style="color: #ef4444;" id="notAttendingCount">0</div>
+                    <div class="stat-label">Not Attending (No)</div>
+                </div>
+                <div class="stat-card" style="border-left-color: #f59e0b;">
+                    <div class="stat-number" style="color: #f59e0b;" id="maybeCount">0</div>
+                    <div class="stat-label">Maybe/Undecided</div>
+                </div>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Search Guest</label>
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Search by name or email..."
+                            class="search-box"
+                            onkeyup="filterTable()"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Event</label>
+                        <select id="eventFilter" class="search-box" onchange="filterTable()">
+                            <option value="">All Events</option>
+                            <option value="aqid">Aqid Ceremony</option>
+                            <option value="wedding">Wedding Ceremony</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Attendance</label>
+                        <select id="attendanceFilter" class="search-box" onchange="filterTable()">
+                            <option value="">All Responses</option>
+                            <option value="yes">Yes (Attending)</option>
+                            <option value="no">No (Not Attending)</option>
+                            <option value="maybe">Maybe (Undecided)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Button -->
+            <div class="mb-6 flex gap-4">
+                <button onclick="exportToCSV()" class="btn btn-primary">
+                    📥 Export to CSV
+                </button>
+                <button onclick="printTable()" class="btn btn-secondary">
+                    🖨️ Print
+                </button>
+                <button onclick="location.reload()" class="btn btn-secondary">
+                    🔄 Refresh
+                </button>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div id="loadingSpinner" class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading RSVP data...</p>
+                </div>
+
+                <div id="tableContainer" style="display: none; overflow-x: auto;">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Event</th>
+                                <th>Attendance</th>
+                                <th>Guests</th>
+                                <th>Comments</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rsvpTableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="noData" style="display: none;" class="text-center py-12">
+                    <p class="text-gray-600 text-lg">No RSVP data found</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script>
+        // Admin PIN (change this to something secure)
+        const ADMIN_PIN = "1234";
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const pin = document.getElementById('adminPin').value;
+
+            if (pin === ADMIN_PIN) {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                showDashboard();
+                loadRSVPData();
+            } else {
+                alert('Invalid PIN. Please try again.');
+                document.getElementById('adminPin').value = '';
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+        }
+
+        function logout() {
+            sessionStorage.removeItem('adminLoggedIn');
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'flex';
+            document.getElementById('adminPin').value = '';
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // Check if already logged in
+        if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+            showDashboard();
+            setTimeout(loadRSVPData, 500);
+        }
+
+        async function loadRSVPData() {
+            try {
+                const snapshot = await db.collection('rsvp').orderBy('timestamp', 'desc').get();
+                const rsvps = [];
+
+                snapshot.forEach(doc => {
+                    rsvps.push({ id: doc.id, ...doc.data() });
+                });
+
+                displayRSVPData(rsvps);
+                updateStatistics(rsvps);
+            } catch (error) {
+                console.error('Error loading RSVP data:', error);
+                document.getElementById('loadingSpinner').innerHTML = '<p class="text-red-600">Error loading data. Make sure Firebase is configured correctly.</p>';
+            }
+        }
+
+        function displayRSVPData(rsvps) {
+            const tbody = document.getElementById('rsvpTableBody');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const tableContainer = document.getElementById('tableContainer');
+            const noData = document.getElementById('noData');
+
+            if (rsvps.length === 0) {
+                loadingSpinner.style.display = 'none';
+                noData.style.display = 'block';
+                tableContainer.style.display = 'none';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            rsvps.forEach((rsvp, index) => {
+                const date = rsvp.submittedAt?.toDate?.() || new Date(rsvp.timestamp);
+                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+
+                const attendanceBadge = `
+                    <span class="badge badge-${rsvp.attendance}">
+                        ${rsvp.attendance.charAt(0).toUpperCase() + rsvp.attendance.slice(1)}
+                    </span>
+                `;
+
+                const eventLabel = rsvp.eventType === 'aqid' ? 'Aqid Ceremony' : 'Wedding Ceremony';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><strong>${rsvp.name}</strong></td>
+                        <td>${rsvp.email}</td>
+                        <td>${rsvp.phone}</td>
+                        <td>${eventLabel}</td>
+                        <td>${attendanceBadge}</td>
+                        <td>${rsvp.guestCount || 1}</td>
+                        <td>${rsvp.comments ? rsvp.comments.substring(0, 30) + '...' : '-'}</td>
+                        <td>${formattedDate}</td>
+                    </tr>
+                `;
+            });
+
+            loadingSpinner.style.display = 'none';
+            tableContainer.style.display = 'block';
+        }
+
+        function updateStatistics(rsvps) {
+            const total = rsvps.length;
+            const attending = rsvps.filter(r => r.attendance === 'yes').length;
+            const notAttending = rsvps.filter(r => r.attendance === 'no').length;
+            const maybe = rsvps.filter(r => r.attendance === 'maybe').length;
+
+            document.getElementById('totalRSVP').textContent = total;
+            document.getElementById('attendingCount').textContent = attending;
+            document.getElementById('notAttendingCount').textContent = notAttending;
+            document.getElementById('maybeCount').textContent = maybe;
+        }
+
+        async function filterTable() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const eventFilter = document.getElementById('eventFilter').value;
+            const attendanceFilter = document.getElementById('attendanceFilter').value;
+
+            try {
+                const snapshot = await db.collection('rsvp').get();
+                let filtered = [];
+
+                snapshot.forEach(doc => {
+                    const rsvp = doc.data();
+                    const matchesSearch = !searchText || 
+                        rsvp.name.toLowerCase().includes(searchText) || 
+                        rsvp.email.toLowerCase().includes(searchText);
+                    const matchesEvent = !eventFilter || rsvp.eventType === eventFilter;
+                    const matchesAttendance = !attendanceFilter || rsvp.attendance === attendanceFilter;
+
+                    if (matchesSearch && matchesEvent && matchesAttendance) {
+                        filtered.push({ id: doc.id, ...rsvp });
+                    }
+                });
+
+                displayRSVPData(filtered);
+            } catch (error) {
+                console.error('Error filtering data:', error);
+            }
+        }
+
+        function exportToCSV() {
+            const table = document.getElementById('rsvpTableBody');
+            const rows = table.querySelectorAll('tr');
+            let csv = 'No.,Name,Email,Phone,Event,Attendance,Guests,Comments,Date\n';
+
+            rows.forEach((row, index) => {
+                const cells = row.querySelectorAll('td');
+                const rowData = [];
+                cells.forEach((cell, i) => {
+                    let text = cell.textContent.trim();
+                    // Remove badge formatting
+                    text = text.replace(/Yes|No|Maybe/g, '').trim();
+                    rowData.push(`"${text}"`);
+                });
+                csv += rowData.join(',') + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `RSVP_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+        }
+
+        function printTable() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

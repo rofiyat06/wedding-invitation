@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aqid Ceremony - Kharddy Wedding</title>
+    <script defer src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+        }
+
+        /* Color Scheme */
+        :root {
+            --primary: #8b5cf6;
+            --primary-light: #a78bfa;
+            --primary-dark: #6d28d9;
+            --accent: #f59e0b;
+            --accent-dark: #d97706;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-light: #f9fafb;
+            --bg-lighter: #ffffff;
+            --border: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            scroll-behavior: smooth;
+            background-color: var(--bg-light);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7),
+                            0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            }
+            50% { 
+                box-shadow: 0 0 0 10px rgba(139, 92, 246, 0),
+                            0 10px 15px -3px rgba(0, 0, 0, 0.15);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.7s ease-out forwards;
+            opacity: 0;
+        }
+
+        .fade-in-1 { animation-delay: 0.1s; }
+        .fade-in-2 { animation-delay: 0.2s; }
+        .fade-in-3 { animation-delay: 0.3s; }
+        .fade-in-4 { animation-delay: 0.4s; }
+        .fade-in-5 { animation-delay: 0.5s; }
+
+        @keyframes slideInFromLeft {
+            from { opacity: 0; transform: translateX(-100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Navigation */
+        nav {
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        nav a {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 6px;
+            padding: 0;
+            background: none;
+            border: none;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-primary);
+            border-radius: 2px;
+            transition: all 0.35s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* Music Player Button */
+        .music-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            font-size: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .music-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .music-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .music-btn:hover::before {
+            opacity: 1;
+        }
+
+        .music-btn.playing {
+            animation: glowPulse 2s infinite;
+        }
+
+        /* Card Styles */
+        .card-hover {
+            background: var(--bg-lighter);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        /* Premium gradient backgrounds */
+        .premium-bg {
+            background: linear-gradient(135deg, #f3e5ab 0%, #fffbf0 100%);
+        }
+
+        .premium-dark-bg {
+            background: linear-gradient(135deg, #2d2d3d 0%, #1a1a24 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Audio Player -->
+    <audio id="backgroundMusic" preload="auto" loop autoplay muted playsinline src="music/background.mp3">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/80 backdrop-blur-md shadow-sm z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex justify-center flex-1 gap-12">
+                <a href="index.html" class="text-gray-800 font-semibold hover:text-purple-600 transition">Home</a>
+                <a href="introduction.html" class="text-gray-800 font-semibold hover:text-purple-600 transition">Aqid Ceremony</a>
+                <a href="wedding.html" class="text-gray-800 font-semibold hover:text-purple-600 transition">Wedding Ceremony</a>
+            </div>
+
+            <!-- Music Player Button -->
+            <button id="musicBtn" class="music-btn hidden md:flex" onclick="toggleMusic()" title="Toggle background music">
+                🎵
+            </button>
+
+            <!-- Admin Button (Desktop) -->
+            <button id="adminBtn" class="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition text-sm font-semibold" onclick="toggleAdminPanel()" title="Open Admin Panel">
+                ⚙️ Admin
+            </button>
+
+            <!-- Music Player Button -->
+            <div class="md:hidden flex items-center gap-2">
+                <button id="musicBtnMobile" class="music-btn" onclick="toggleMusic()" title="Toggle background music">
+                    🎵
+                </button>
+                <button id="adminBtnMobile" class="inline-flex items-center justify-center w-10 h-10 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition font-bold" onclick="toggleAdminPanel()" title="Open Admin Panel">
+                    ⚙️
+                </button>
+            </div>
+
+            <!-- Hamburger Menu -->
+            <div class="md:hidden flex items-center gap-4">
+                <button id="hamburger" class="hamburger" onclick="toggleMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <div class="px-4 py-4 space-y-3">
+                <a href="index.html" class="block text-gray-800 font-semibold hover:text-purple-600 transition py-2 px-3 rounded hover:bg-gray-100">Home</a>
+                <a href="introduction.html" class="block text-gray-800 font-semibold hover:text-purple-600 transition py-2 px-3 rounded hover:bg-gray-100 border-l-4 border-purple-600">Aqid Ceremony</a>
+                <a href="wedding.html" class="block text-gray-800 font-semibold hover:text-purple-600 transition py-2 px-3 rounded hover:bg-gray-100">Wedding Ceremony</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Banner -->
+    <div class="pt-24 pb-12 bg-gradient-to-br from-purple-600 via-purple-700 to-purple-900 text-white text-center relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-80 h-80 bg-purple-400/10 rounded-full blur-3xl"></div>
+        
+        <div class="relative z-10">
+            <div class="text-6xl mb-4">💜</div>
+            <h1 class="text-5xl sm:text-6xl font-bold mb-4">Aqid Ceremony</h1>
+            <p class="text-xl sm:text-2xl text-purple-100">A celebration of union and blessings</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="py-12 relative bg-cover bg-center" style="background-image: url('images/background image.jpg.jfif'); background-attachment: fixed;">
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-r from-purple-900/30 to-purple-800/30"></div>
+        
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <!-- Details Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <!-- Date Card -->
+            <div class="fade-in fade-in-1 card-hover bg-white rounded-xl p-8 border-t-4 border-purple-700">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v2h16V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5H4v6a2 2 0 002 2h12a2 2 0 002-2V7h-2v1a1 1 0 11-2 0V7H9v1a1 1 0 11-2 0V7H6v1a1 1 0 11-2 0V7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900">Date & Time</h3>
+                </div>
+                <p class="text-purple-700 font-semibold text-lg mb-1">📅 Sunday, 31st May 2026</p>
+                <p class="text-gray-600">All day celebration</p>
+            </div>
+
+            <!-- Venue Card -->
+            <div class="fade-in fade-in-2 card-hover bg-white rounded-xl p-8 border-t-4 border-purple-700">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M12.586 4.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11 4H8v12h3v-2.586l6.707-6.707a4 4 0 00-5.656-5.656L8 7.172V4z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900">Venue</h3>
+                </div>
+                <p class="text-purple-700 font-semibold text-lg mb-1">Alhaji & Mrs Adediran Residence</p>
+                <p class="text-gray-600 text-sm">B1 Ilupeju Estate, Boluwaduro Area,<br>Ofatedo, Osogbo, Osun State</p>
+            </div>
+
+            <!-- Dress Code Card -->
+            <div class="fade-in fade-in-3 card-hover bg-white rounded-xl p-8 border-t-4 border-purple-700">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a1 1 0 102 0V6h10V4a2 2 0 00-2-2H4zm10 12a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900">Dress Code</h3>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex gap-3 items-center">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-800 rounded-full"></div>
+                        <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full"></div>
+                    </div>
+                    <p class="text-lg font-bold text-gray-900">Purple & Gold</p>
+                </div>
+            </div>
+
+            <!-- Countdown Card -->
+            <div class="fade-in fade-in-4 card-hover bg-white rounded-xl p-8 border-t-4 border-purple-700">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">Countdown</h3>
+                <div class="grid grid-cols-4 gap-3 text-center">
+                    <div class="bg-gradient-to-br from-purple-100 to-purple-50 rounded-lg p-4 border border-purple-200">
+                        <p class="text-3xl font-bold text-purple-700" id="days">00</p>
+                        <p class="text-xs text-gray-600 font-semibold mt-2">Days</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-100 to-purple-50 rounded-lg p-4 border border-purple-200">
+                        <p class="text-3xl font-bold text-purple-700" id="hours">00</p>
+                        <p class="text-xs text-gray-600 font-semibold mt-2">Hours</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-100 to-purple-50 rounded-lg p-4 border border-purple-200">
+                        <p class="text-3xl font-bold text-purple-700" id="minutes">00</p>
+                        <p class="text-xs text-gray-600 font-semibold mt-2">Minutes</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-100 to-purple-50 rounded-lg p-4 border border-purple-200">
+                        <p class="text-3xl font-bold text-purple-700" id="seconds">00</p>
+                        <p class="text-xs text-gray-600 font-semibold mt-2">Seconds</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description Section -->
+        <div class="fade-in fade-in-5 card-hover bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl shadow-md p-8 mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <!-- Image -->
+                <div class="rounded-lg overflow-hidden shadow-lg h-96">
+                    <img 
+                        src="images/introduction image.jpg.jfif" 
+                        alt="Aqid Ceremony" 
+                        class="w-full h-full object-cover"
+                    >
+                </div>
+                <!-- Text -->
+                <div>
+                    <h3 class="text-3xl font-bold text-purple-900 mb-4">About the Aqid Ceremony</h3>
+                    <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                        The Aqid ceremony is a traditional Islamic social event marking the introduction of the couple to families and loved ones. 
+                        It is a joyous occasion filled with blessings, family bonds, and celebration. Your presence and prayers will mean the world to us.
+                    </p>
+                    <p class="text-gray-700 text-lg leading-relaxed">
+                        Join us as we celebrate this momentous occasion with gratitude and joy. Whether you are here in person or in spirit, 
+                        your love and support are deeply appreciated.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="fade-in fade-in-5 card-hover bg-white rounded-xl shadow-md overflow-hidden mb-12">
+            <h3 class="text-2xl font-bold text-gray-900 p-8 pb-4">Location</h3>
+            <div class="w-full h-96">
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3958.5576850704476!2d4.546847!3d7.770066!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103ad5cc11111111%3A0x0!2sAlhaji%20%26%20Mrs%20Adediran%20Residence%2C%20Osogbo!5e0!3m2!1sen!2sng!4v1714662400"
+                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+            <div class="p-8">
+                <a 
+                    href="https://www.google.com/maps/search/Ilupeju+Estate+Boluwaduro+Ofatedo+Osogbo/@7.769166,4.547234,15z" 
+                    target="_blank"
+                    class="inline-block px-6 py-3 bg-purple-700 hover:bg-purple-800 text-white font-semibold rounded-lg transition-colors duration-200"
+                >
+                    📍 Open in Google Maps
+                </a>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="fade-in fade-in-5 grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            <!-- Add to Calendar -->
+            <button 
+                onclick="addToCalendar('Aqid Ceremony', '2026-05-31', 'Alhaji & Mrs Adediran Residence, B1 Ilupeju Estate, Boluwaduro, Ofatedo, Osogbo, Osun State')"
+                class="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold rounded-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-lg w-full"
+            >
+                📅 Add to Calendar
+            </button>
+
+            <!-- RSVP -->
+            <button 
+                onclick="document.getElementById('rsvpModal').classList.remove('hidden')"
+                class="px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-lg w-full"
+            >
+                ✋ RSVP
+            </button>
+        </div>
+        </div>
+    </main>
+
+    <!-- RSVP Modal -->
+    <div id="rsvpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-2xl max-w-md w-full p-8">
+            <h3 class="text-2xl font-bold text-gray-900 mb-6">RSVP - Aqid Ceremony</h3>
+            
+            <form id="rsvpForm" onsubmit="handleRSVP(event, 'aqid')">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">Full Name *</label>
+                    <input 
+                        type="text" 
+                        id="guestName" 
+                        required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                        placeholder="Your full name"
+                    >
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">Email *</label>
+                    <input 
+                        type="email" 
+                        id="guestEmail" 
+                        required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                        placeholder="your.email@example.com"
+                    >
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">Phone Number *</label>
+                    <input 
+                        type="tel" 
+                        id="guestPhone" 
+                        required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                        placeholder="+234..."
+                    >
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2">Will you attend? *</label>
+                    <select 
+                        id="guestAttendance" 
+                        required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    >
+                        <option value="">Select an option</option>
+                        <option value="yes">Yes, I'll attend</option>
+                        <option value="no">No, I won't attend</option>
+                        <option value="maybe">Maybe, I'll var you know</option>
+                    </select>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2">Number of Guests</label>
+                    <input 
+                        type="number" 
+                        id="guestCount" 
+                        min="1" 
+                        max="10" 
+                        value="1"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    >
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2">Additional Comments</label>
+                    <textarea 
+                        id="guestComments" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                        placeholder="Any special requests or messages..."
+                        rows="3"
+                    ></textarea>
+                </div>
+
+                <div class="flex gap-4">
+                    <button 
+                        type="submit" 
+                        class="flex-1 px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white font-semibold rounded-lg transition-colors duration-200"
+                    >
+                        Submit RSVP
+                    </button>
+                    <button 
+                        type="button"
+                        onclick="document.getElementById('rsvpModal').classList.add('hidden')"
+                        class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 font-semibold rounded-lg transition-colors duration-200"
+                    >
+                        Close
+                    </button>
+                </div>
+
+                <div id="rsvpMessage" class="mt-4 text-center hidden text-green-600 font-semibold"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Section -->
+    <div id="adminPanel" class="fixed bottom-4 right-4 bg-gray-800 text-white p-6 rounded-lg shadow-lg z-40 max-w-xs hidden border border-gray-700">
+        <!-- Admin Panel Header -->
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">Admin Panel</h3>
+            <button onclick="toggleAdminPanel()" class="text-gray-400 hover:text-white text-2xl leading-none" title="Close">
+                ✕
+            </button>
+        </div>
+        
+        <!-- RSVP Dashboard Link -->
+        <a href="admin.html" class="block w-full bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm font-bold text-center mb-4 transition">
+            📊 RSVP Dashboard
+        </a>
+    </div>
+
+    <script>
+        // Toggle Mobile Menu
+        function toggleMenu() {
+            var hamburger = document.getElementById('hamburger');
+            var mobileMenu = document.getElementById('mobileMenu');
+            
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        // Close menu when a link is clicked
+        Array.prototype.forEach.call(document.querySelectorAll('#mobileMenu a'), function(link) {
+            link.addEventListener('click', function() {
+                document.getElementById('hamburger').classList.remove('active');
+                document.getElementById('mobileMenu').classList.add('hidden');
+            });
+        });
+
+        // Music Player
+        var audio = document.getElementById('backgroundMusic');
+        var musicBtn = document.getElementById('musicBtn');
+        var musicBtnMobile = document.getElementById('musicBtnMobile');
+        var isPlaying = true; // Start as true since autoplay is enabled
+        var audioUnmuted = !audio.muted;
+        var audioUnlocked = false;
+
+        function toggleMusic() {
+            if (audio.src === '' || audio.src === undefined) {
+                alert('Please add a music file to the audio element with src attribute');
+                return;
+            }
+
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+            } else {
+                audio.play().catch(function(err) {
+                    console.log('Autoplay prevented:', err);
+                });
+                isPlaying = true;
+            }
+            updateMusicButton();
+        }
+
+        function updateMusicButton() {
+            if (musicBtn) {
+                if (isPlaying) {
+                    musicBtn.classList.add('playing');
+                } else {
+                    musicBtn.classList.remove('playing');
+                }
+            }
+            if (musicBtnMobile) {
+                if (isPlaying) {
+                    musicBtnMobile.classList.add('playing');
+                } else {
+                    musicBtnMobile.classList.remove('playing');
+                }
+            }
+        }
+
+        // Update button when audio plays/pauses
+        audio.addEventListener('play', function() {
+            isPlaying = true;
+            updateMusicButton();
+        });
+
+        audio.addEventListener('pause', function() {
+            isPlaying = false;
+            updateMusicButton();
+        });
+
+        // Loop the music
+        audio.addEventListener('ended', function() {
+            audio.currentTime = 0;
+            audio.play().catch(function(err) { console.log('Replay error:', err); });
+        });
+
+        // Restore audio state from session
+        function restoreAudioState() {
+            var savedMuted = sessionStorage.getItem('audioMuted');
+            var savedTime = sessionStorage.getItem('audioTime');
+            var wasPlaying = sessionStorage.getItem('audioPlaying') === 'true';
+            
+            if (savedMuted === 'false') {
+                audio.muted = false;
+                audioUnmuted = true;
+            }
+            
+            // Restore playback position
+            if (savedTime) {
+                audio.currentTime = parseFloat(savedTime);
+            }
+            
+            // Resume playback if it was playing
+            if (wasPlaying) {
+                isPlaying = true;
+                // Try to play as soon as possible
+                var playAttempt = function() {
+                    audio.play()
+                        .then(function() {
+                            console.log('Audio resumed successfully');
+                            audio.removeEventListener('canplay', playAttempt);
+                        })
+                        .catch(function(err) {
+                            console.log('Initial play attempt failed:', err);
+                            // Retry after audio is ready
+                            audio.addEventListener('canplay', playAttempt, { once: true });
+                        });
+                };
+                playAttempt();
+            }
+        }
+
+        // Save audio state to session (including current time)
+        function saveAudioState() {
+            sessionStorage.setItem('audioMuted', audio.muted);
+            sessionStorage.setItem('audioPlaying', isPlaying);
+            sessionStorage.setItem('audioTime', audio.currentTime);
+        }
+
+        // Unmute audio and save state
+        function unmuteAudio() {
+            if (!audioUnmuted) {
+                audio.muted = false;
+                audioUnmuted = true;
+                audio.play().catch(function(err) { console.log('Audio play after unmute prevented:', err); });
+                saveAudioState();
+                console.log('Audio unmuted');
+            }
+        }
+
+        function startAudioOnLoad() {
+            audio.muted = true;
+            audioUnmuted = false;
+            isPlaying = true;
+            audio.play().catch(function(err) {
+                console.log('Muted autoplay prevented:', err);
+                isPlaying = false;
+                updateMusicButton();
+            });
+        }
+
+        function unlockAudio() {
+            if (audioUnlocked) return;
+            audioUnlocked = true;
+            audio.muted = false;
+            audioUnmuted = true;
+            isPlaying = true;
+            audio.play()
+                .then(function() {
+                    saveAudioState();
+                    updateMusicButton();
+                })
+                .catch(function(err) {
+                    audioUnlocked = false;
+                    console.log('Audio unlock prevented:', err);
+                    updateMusicButton();
+                });
+        }
+
+        // Restore state on page load
+        restoreAudioState();
+        startAudioOnLoad();
+        updateMusicButton();
+
+        // Unmute on first scroll (most natural interaction)
+        var scrollHandler = null;
+        scrollHandler = function() {
+            unmuteAudio();
+            document.removeEventListener('scroll', scrollHandler);
+        };
+        document.addEventListener('scroll', scrollHandler, { passive: true });
+
+        // Also unmute on any click
+        document.addEventListener('click', unlockAudio, { capture: true });
+        document.addEventListener('touchstart', unlockAudio, { capture: true, passive: true });
+        document.addEventListener('pointerdown', unlockAudio, { capture: true });
+        document.addEventListener('keydown', unlockAudio, { capture: true });
+
+        // Unmute after 1.5 seconds if no interaction yet
+        setTimeout(function() {
+            if (!audioUnmuted) {
+                unmuteAudio();
+            }
+        }, 1500);
+
+        // Save state before leaving page
+        window.addEventListener('beforeunload', saveAudioState);
+
+        // Toggle Admin Panel
+        function toggleAdminPanel() {
+            var panel = document.getElementById('adminPanel');
+            panel.classList.toggle('hidden');
+        }
+    </script>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/countdown.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/rsvp.js"></script>
+</body>
+</html>
