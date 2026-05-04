@@ -4,33 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kharddy Wedding - Aqid & Wedding Ceremony</title>
-    <script defer src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Dancing+Script:wght@500;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
         }
 
-        /* Color Scheme */
+        /* Color Scheme - Warm Wedding Palette */
         :root {
             --primary: #8b5cf6;
             --primary-light: #a78bfa;
             --primary-dark: #6d28d9;
-            --accent: #f59e0b;
-            --accent-dark: #d97706;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --bg-light: #f9fafb;
-            --bg-lighter: #ffffff;
-            --border: #e5e7eb;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --accent: #c9a961;
+            --accent-dark: #a88754;
+            --accent-light: #ddb88f;
+            --tertiary: #8b3a62;
+            --tertiary-light: #a74a73;
+            --text-primary: #3d2d1f;
+            --text-secondary: #704d3b;
+            --bg-light: #fdfaf3;
+            --bg-lighter: #fdfaf3;
+            --bg-cream: #fefcf7;
+            --border: #e8dcc8;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.18);
         }
 
         body {
             scroll-behavior: smooth;
             background-color: var(--bg-light);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(201, 169, 97, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 85% 80%, rgba(139, 58, 98, 0.02) 0%, transparent 50%);
         }
 
         /* Typography */
@@ -62,11 +75,11 @@
 
         @keyframes glowPulse {
             0%, 100% { 
-                box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7),
+                box-shadow: 0 0 0 0 rgba(201, 169, 97, 0.7),
                             0 10px 15px -3px rgba(0, 0, 0, 0.1);
             }
             50% { 
-                box-shadow: 0 0 0 10px rgba(139, 92, 246, 0),
+                box-shadow: 0 0 0 10px rgba(201, 169, 97, 0),
                             0 10px 15px -3px rgba(0, 0, 0, 0.15);
             }
         }
@@ -74,6 +87,22 @@
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
+        }
+
+        @keyframes floatGently {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes fadeInScale {
+            from { 
+                opacity: 0; 
+                transform: scale(0.95) translateY(20px);
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1) translateY(0);
+            }
         }
 
         .hero-content {
@@ -149,11 +178,11 @@
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
             color: white;
             cursor: pointer;
             border: 2px solid transparent;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 18px;
             position: relative;
             overflow: hidden;
@@ -163,14 +192,14 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.1));
+            background: linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.15));
             opacity: 0;
             transition: opacity 0.3s ease;
         }
 
         .music-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+            transform: scale(1.15);
+            box-shadow: 0 10px 30px rgba(201, 169, 97, 0.35);
         }
 
         .music-btn:hover::before {
@@ -193,7 +222,64 @@
         .card-hover:hover {
             transform: translateY(-8px);
             box-shadow: var(--shadow-lg);
-            border-color: var(--primary-light);
+            border-color: var(--accent);
+            background: var(--bg-cream);
+        }
+
+        /* Decorative Dividers */
+        .divider-gold {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .divider-gold span:first-child,
+        .divider-gold span:last-child {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--accent) 50%, 
+                transparent);
+        }
+
+        .divider-gold .divider-ornament {
+            color: var(--accent);
+            font-size: 1.5rem;
+            opacity: 0.7;
+            letter-spacing: 0.5rem;
+        }
+
+        /* Monogram Styles */
+        .monogram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            background: rgba(253, 250, 243, 0.8);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-style: italic;
+            font-family: 'Playfair Display', Georgia, serif;
+            backdrop-filter: blur(10px);
+        }
+
+        .monogram.large {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+        }
+
+        .monogram.xlarge {
+            width: 120px;
+            height: 120px;
+            font-size: 3rem;
         }
 
         /* Button Styles */
@@ -202,7 +288,7 @@
             border-radius: 8px;
             font-weight: 600;
             font-size: 16px;
-            transition: all 0.3s ease;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             border: none;
             cursor: pointer;
             display: inline-flex;
@@ -228,7 +314,7 @@
 
         .btn-accent:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 15px 30px rgba(201, 169, 97, 0.3);
         }
 
         /* Hero Section Enhancements */
@@ -245,11 +331,55 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+
+        /* Mobile Responsive Enhancements */
+        @media (max-width: 640px) {
+            .card-hover {
+                border-radius: 10px;
+                padding: 1rem !important;
+            }
+
+            h1, h2 {
+                letter-spacing: -0.3px;
+            }
+
+            h3, h4 {
+                font-size: 1.25rem;
+            }
+
+            .divider-gold .divider-ornament {
+                font-size: 1.2rem;
+                letter-spacing: 0.3rem;
+            }
+
+            .monogram {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .monogram.large {
+                width: 70px;
+                height: 70px;
+                font-size: 1.75rem;
+            }
+
+            .monogram.xlarge {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5rem;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body class="bg-white text-gray-900">
     <!-- Audio Player -->
-    <audio id="backgroundMusic" preload="auto" loop autoplay muted playsinline src="music/background.mp3">
+    <audio id="backgroundMusic" preload="auto" loop autoplay muted playsinline src="/music/background.mp3">
         Your browser does not support the audio element.
     </audio>
 
@@ -322,7 +452,7 @@
                 <span id="coupleNamePlaceholder" class="text-gray-300">
                     Adewale Abdulhamid<br/>
                     <span class="text-4xl sm:text-5xl md:text-6xl my-4">&</span><br/>
-                    Adediran Khadijah
+                    Adenike Khadijah
                 </span>
             </h1>
 
@@ -406,6 +536,22 @@
             </div>
         </div>
     </section>
+
+    <!-- Wedding Footer -->
+    <footer class="relative py-14 px-6 text-center bg-gradient-to-b from-amber-50 to-amber-100 border-t border-amber-300/60">
+        <div class="flex items-center justify-center gap-4 sm:gap-6 mb-5">
+            <span class="block h-px w-16 sm:w-24 bg-gradient-to-r from-transparent to-amber-500"></span>
+            <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-amber-500 bg-white/60 shadow-inner relative">
+                <span class="absolute inset-1.5 rounded-full border border-amber-400/60"></span>
+                <span class="text-xl sm:text-2xl text-amber-700 italic" style="font-family:'Playfair Display',Georgia,serif;">A&amp;A</span>
+            </div>
+            <span class="block h-px w-16 sm:w-24 bg-gradient-to-l from-transparent to-amber-500"></span>
+        </div>
+        <p class="text-3xl sm:text-4xl text-purple-900 leading-tight" style="font-family:'Dancing Script',cursive;">With love,</p>
+        <p class="text-2xl sm:text-3xl text-amber-700 font-semibold mt-1" style="font-family:'Dancing Script',cursive;">Adewale &amp; Adenike</p>
+        <p class="text-sm text-gray-500 mt-4 italic tracking-wide" style="font-family:'Cormorant Garamond',Georgia,serif;">#Adewale &amp; Adenike • #Ades Love Story</p>
+        <p class="text-xs text-gray-400 mt-3">© 2026 Kharddy Wedding</p>
+    </footer>
 
     <!-- Admin Section (for updating couple names and images) -->
     <div id="adminPanel" class="fixed bottom-4 right-4 bg-gray-800 text-white p-6 rounded-lg shadow-lg z-40 max-w-xs hidden border border-gray-700">
@@ -575,14 +721,27 @@
         }
 
         function startAudioOnLoad() {
-            audio.muted = true;
-            audioUnmuted = false;
-            isPlaying = true;
-            audio.play().catch(function(err) {
-                console.log('Muted autoplay prevented:', err);
-                isPlaying = false;
-                updateMusicButton();
-            });
+            // Try unmuted autoplay first (works on browsers with high media engagement)
+            audio.muted = false;
+            audio.play()
+                .then(function() {
+                    audioUnmuted = true;
+                    audioUnlocked = true;
+                    isPlaying = true;
+                    saveAudioState();
+                    updateMusicButton();
+                })
+                .catch(function() {
+                    // Browser blocked unmuted autoplay - fall back to muted autoplay
+                    audio.muted = true;
+                    audioUnmuted = false;
+                    isPlaying = true;
+                    audio.play().catch(function(err) {
+                        console.log('Muted autoplay prevented:', err);
+                        isPlaying = false;
+                        updateMusicButton();
+                    });
+                });
         }
 
         function unlockAudio() {

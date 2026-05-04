@@ -4,35 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wedding Ceremony - Kharddy Wedding</title>
-    <script defer src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Dancing+Script:wght@500;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
     <style>
         * {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
         }
 
-        /* Color Scheme */
+        /* Color Scheme - Warm Wedding Palette */
         :root {
             --primary: #8b5cf6;
             --primary-light: #a78bfa;
             --primary-dark: #6d28d9;
-            --accent: #f59e0b;
-            --accent-dark: #d97706;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --bg-light: #f9fafb;
-            --bg-lighter: #ffffff;
-            --border: #e5e7eb;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --accent: #c9a961;
+            --accent-dark: #a88754;
+            --accent-light: #ddb88f;
+            --tertiary: #8b3a62;
+            --tertiary-light: #a74a73;
+            --text-primary: #3d2d1f;
+            --text-secondary: #704d3b;
+            --bg-light: #fdfaf3;
+            --bg-lighter: #fdfaf3;
+            --bg-cream: #fefcf7;
+            --border: #e8dcc8;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.18);
         }
 
         body {
             scroll-behavior: smooth;
             background-color: var(--bg-light);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(201, 169, 97, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 85% 80%, rgba(139, 58, 98, 0.02) 0%, transparent 50%);
         }
 
         /* Typography */
@@ -49,12 +62,38 @@
 
         @keyframes glowPulse {
             0%, 100% { 
-                box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7),
+                box-shadow: 0 0 0 0 rgba(201, 169, 97, 0.7),
                             0 10px 15px -3px rgba(0, 0, 0, 0.1);
             }
             50% { 
-                box-shadow: 0 0 0 10px rgba(139, 92, 246, 0),
+                box-shadow: 0 0 0 10px rgba(201, 169, 97, 0),
                             0 10px 15px -3px rgba(0, 0, 0, 0.15);
+            }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes floatGently {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes goldShimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        @keyframes fadeInScale {
+            from { 
+                opacity: 0; 
+                transform: scale(0.95) translateY(20px);
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1) translateY(0);
             }
         }
 
@@ -147,7 +186,7 @@
             color: white;
             cursor: pointer;
             border: 2px solid transparent;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 18px;
             position: relative;
             overflow: hidden;
@@ -157,14 +196,14 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.1));
+            background: linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.15));
             opacity: 0;
             transition: opacity 0.3s ease;
         }
 
         .music-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+            transform: scale(1.15);
+            box-shadow: 0 10px 30px rgba(201, 169, 97, 0.35);
         }
 
         .music-btn:hover::before {
@@ -187,22 +226,127 @@
         .card-hover:hover {
             transform: translateY(-8px);
             box-shadow: var(--shadow-lg);
-            border-color: var(--primary-light);
+            border-color: var(--accent);
+            background: var(--bg-cream);
+        }
+
+        /* Decorative Dividers */
+        .divider-gold {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .divider-gold span:first-child,
+        .divider-gold span:last-child {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--accent) 50%, 
+                transparent);
+        }
+
+        .divider-gold .divider-ornament {
+            color: var(--accent);
+            font-size: 1.5rem;
+            opacity: 0.7;
+            letter-spacing: 0.5rem;
+        }
+
+        /* Monogram Styles */
+        .monogram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            background: rgba(253, 250, 243, 0.8);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-style: italic;
+            font-family: 'Playfair Display', Georgia, serif;
+            backdrop-filter: blur(10px);
+        }
+
+        .monogram.large {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+        }
+
+        .monogram.xlarge {
+            width: 120px;
+            height: 120px;
+            font-size: 3rem;
         }
 
         /* Premium gradient backgrounds */
         .premium-bg {
-            background: linear-gradient(135deg, #f3e5ab 0%, #fffbf0 100%);
+            background: linear-gradient(135deg, #f5f1e8 0%, #fefcf7 100%);
         }
 
         .premium-dark-bg {
-            background: linear-gradient(135deg, #2d2d3d 0%, #1a1a24 100%);
+            background: linear-gradient(135deg, #3d2d1f 0%, #2d1f12 100%);
+        }
+
+        /* Button Styles Enhanced */
+        button:not(.hamburger):not(.music-btn):not(#adminBtn):not(#adminBtnMobile) {
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        button:not(.hamburger):not(.music-btn):not(#adminBtn):not(#adminBtnMobile):hover {
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Mobile Responsive Enhancements */
+        @media (max-width: 640px) {
+            .card-hover {
+                border-radius: 10px;
+                padding: 1rem !important;
+            }
+
+            h1, h2 {
+                letter-spacing: -0.3px;
+            }
+
+            h3, h4 {
+                font-size: 1.25rem;
+            }
+
+            .divider-gold .divider-ornament {
+                font-size: 1.2rem;
+                letter-spacing: 0.3rem;
+            }
+
+            .monogram {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .monogram.large {
+                width: 70px;
+                height: 70px;
+                font-size: 1.75rem;
+            }
+
+            .monogram.xlarge {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5rem;
+            }
         }
     </style>
 </head>
 <body class="bg-white text-gray-900">
     <!-- Audio Player -->
-    <audio id="backgroundMusic" preload="auto" loop autoplay muted playsinline src="music/background.mp3">
+    <audio id="backgroundMusic" preload="auto" loop autoplay muted playsinline src="/music/background.mp3">
         Your browser does not support the audio element.
     </audio>
 
@@ -416,12 +560,114 @@
             </button>
         </div>
 
+        <!-- Decorative Divider -->
+        <div class="flex items-center justify-center gap-4 my-2 mb-12 max-w-md mx-auto text-amber-700">
+            <span class="flex-1 h-px bg-gradient-to-r from-transparent via-amber-500 to-amber-600"></span>
+            <span class="text-xl tracking-[0.4em]" style="font-family:'Playfair Display',serif;">✦ ❦ ✦</span>
+            <span class="flex-1 h-px bg-gradient-to-l from-transparent via-amber-500 to-amber-600"></span>
+        </div>
+
+        <!-- Livestream Section -->
+        <div id="livestreamSection" data-event="wedding" class="fade-in fade-in-5 card-hover bg-gradient-to-br from-amber-600 via-amber-700 to-amber-900 rounded-xl shadow-xl p-8 mb-12 text-white text-center relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-amber-300/15 rounded-full blur-3xl"></div>
+
+            <div class="relative z-10">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-white/10 backdrop-blur rounded-full mb-4 border-2 border-amber-200/40">
+                    <svg class="w-10 h-10 text-amber-100" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-3xl sm:text-4xl font-bold mb-2" style="font-family: 'Playfair Display', serif;">Watch Live</h3>
+                <p class="text-amber-50 text-lg mb-6">Can't join us in person? Be part of our celebration online.</p>
+
+                <p class="text-amber-100 text-sm uppercase tracking-widest mb-3">Streaming on</p>
+                <p id="livestreamPlatform" class="text-2xl sm:text-3xl font-semibold mb-6" style="font-family: 'Playfair Display', serif;">Coming Soon</p>
+                <a
+                    id="livestreamLink"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onclick="handleLivestreamClick(event)"
+                    class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-white to-amber-50 hover:from-amber-50 hover:to-white text-amber-800 font-bold rounded-full transition-all duration-200 hover:-translate-y-1 hover:shadow-2xl text-lg cursor-pointer"
+                >
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                    Join Livestream
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </a>
+            </div>
+        </div>
+
         <!-- Coming Soon Banner -->
         <div class="fade-in fade-in-5 bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-300 rounded-lg p-8 text-center">
             <p class="text-gray-700 text-lg font-semibold mb-2">More details coming soon!</p>
             <p class="text-gray-600">We are finalizing all arrangements and will update you shortly with complete information.</p>
         </div>
     </main>
+
+    <!-- Wedding Footer -->
+    <footer class="relative py-14 px-6 text-center bg-gradient-to-b from-amber-50 to-amber-100 border-t border-amber-300/60">
+        <div class="flex items-center justify-center gap-4 sm:gap-6 mb-5">
+            <span class="block h-px w-16 sm:w-24 bg-gradient-to-r from-transparent to-amber-500"></span>
+            <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-amber-500 bg-white/60 shadow-inner relative">
+                <span class="absolute inset-1.5 rounded-full border border-amber-400/60"></span>
+                <span class="text-xl sm:text-2xl text-amber-700 italic" style="font-family:'Playfair Display',Georgia,serif;">A&amp;A</span>
+            </div>
+            <span class="block h-px w-16 sm:w-24 bg-gradient-to-l from-transparent to-amber-500"></span>
+        </div>
+        <p class="text-3xl sm:text-4xl text-purple-900 leading-tight" style="font-family:'Dancing Script',cursive;">With love,</p>
+        <p class="text-2xl sm:text-3xl text-amber-700 font-semibold mt-1" style="font-family:'Dancing Script',cursive;">Adewale &amp; Adenike</p>
+        <p class="text-sm text-gray-500 mt-4 italic tracking-wide" style="font-family:'Cormorant Garamond',Georgia,serif;">#Adewale &amp; Adenike • #Ades Love Story</p>
+        <p class="text-xs text-gray-400 mt-3">© 2026 Kharddy Wedding</p>
+    </footer>
+
+    <!-- Livestream Countdown Modal -->
+    <div id="livestreamCountdownModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onclick="if(event.target===this) closeLivestreamCountdown()">
+        <div class="relative bg-gradient-to-br from-amber-700 via-amber-800 to-amber-900 rounded-2xl shadow-2xl p-8 max-w-md w-full text-white text-center overflow-hidden">
+            <div class="absolute top-0 right-0 w-48 h-48 bg-white/15 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-amber-300/20 rounded-full blur-3xl"></div>
+
+            <button type="button" onclick="closeLivestreamCountdown()" aria-label="Close" class="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white text-lg z-10">✕</button>
+
+            <div class="relative z-10">
+                <div class="text-5xl mb-3">📡</div>
+                <h3 class="text-2xl sm:text-3xl font-bold mb-2" style="font-family: 'Playfair Display', serif;">Livestream Coming Soon</h3>
+                <p class="text-amber-50 mb-6">Wedding date and livestream details will be announced soon.</p>
+
+                <div id="lsCountdownGrid" class="hidden grid grid-cols-4 gap-2 sm:gap-3 mb-4">
+                    <div class="bg-white/10 backdrop-blur rounded-lg p-3 sm:p-4 border border-white/10">
+                        <p id="lsDays" class="text-2xl sm:text-3xl font-bold text-amber-100">00</p>
+                        <p class="text-[10px] sm:text-xs text-amber-50 mt-1 uppercase tracking-wider">Days</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur rounded-lg p-3 sm:p-4 border border-white/10">
+                        <p id="lsHours" class="text-2xl sm:text-3xl font-bold text-amber-100">00</p>
+                        <p class="text-[10px] sm:text-xs text-amber-50 mt-1 uppercase tracking-wider">Hours</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur rounded-lg p-3 sm:p-4 border border-white/10">
+                        <p id="lsMinutes" class="text-2xl sm:text-3xl font-bold text-amber-100">00</p>
+                        <p class="text-[10px] sm:text-xs text-amber-50 mt-1 uppercase tracking-wider">Minutes</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur rounded-lg p-3 sm:p-4 border border-white/10">
+                        <p id="lsSeconds" class="text-2xl sm:text-3xl font-bold text-amber-100">00</p>
+                        <p class="text-[10px] sm:text-xs text-amber-50 mt-1 uppercase tracking-wider">Seconds</p>
+                    </div>
+                </div>
+
+                <div id="lsCountdownTBD" class="mb-4 px-4 py-6 bg-white/10 backdrop-blur rounded-lg border border-white/10">
+                    <p class="text-3xl text-amber-100 font-semibold mb-1" style="font-family: 'Playfair Display', serif;">Date To Be Announced</p>
+                </div>
+
+                <p id="lsCountdownNote" class="text-amber-50 text-sm">The date and livestream link will be shared as soon as they are confirmed.</p>
+
+                <button type="button" onclick="closeLivestreamCountdown()" class="mt-5 px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-sm font-semibold transition-colors">
+                    Got it
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Premium RSVP Modal -->
     <div id="rsvpModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
@@ -669,14 +915,27 @@
         }
 
         function startAudioOnLoad() {
-            audio.muted = true;
-            audioUnmuted = false;
-            isPlaying = true;
-            audio.play().catch(function(err) {
-                console.log('Muted autoplay prevented:', err);
-                isPlaying = false;
-                updateMusicButton();
-            });
+            // Try unmuted autoplay first (works on browsers with high media engagement)
+            audio.muted = false;
+            audio.play()
+                .then(function() {
+                    audioUnmuted = true;
+                    audioUnlocked = true;
+                    isPlaying = true;
+                    saveAudioState();
+                    updateMusicButton();
+                })
+                .catch(function() {
+                    // Browser blocked unmuted autoplay - fall back to muted autoplay
+                    audio.muted = true;
+                    audioUnmuted = false;
+                    isPlaying = true;
+                    audio.play().catch(function(err) {
+                        console.log('Muted autoplay prevented:', err);
+                        isPlaying = false;
+                        updateMusicButton();
+                    });
+                });
         }
 
         function unlockAudio() {
@@ -735,5 +994,6 @@
 
     <script src="js/firebase-config.js"></script>
     <script src="js/rsvp.js"></script>
+    <script src="js/livestream.js"></script>
 </body>
 </html>
